@@ -1,5 +1,4 @@
 from pytgcalls.types.input_stream import InputAudioStream
-from pytgcalls.exceptions import GroupCallNotFoundError
 from telethon.tl.functions.phone import (
     CreateGroupCallRequest,
     DiscardGroupCallRequest,
@@ -14,7 +13,7 @@ async def join_and_stream(clients, chat_id, file_path):
 
     try:
         await assistant(GetGroupCallRequest(peer=chat_id))
-    except GroupCallNotFoundError:
+    except Exception:
         await assistant(CreateGroupCallRequest(
             peer=chat_id if isinstance(chat_id, PeerChat) else await assistant.get_input_entity(chat_id),
             random_id=0

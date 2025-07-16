@@ -1,57 +1,45 @@
 # plugins/seek.py
-# plugins/seek.py
 
 from telethon import events
 from config import SUDO_USERS, OWNER_ID
 from utils.clients import vc
-from utils.stream_helpers import restart_stream_from_position  # if you have this helper
+from pytgcalls.types.input_stream import InputAudioStream
+from pytgcalls.types.input_stream.quality import HighQualityAudio
+import os
 
+playing_chat = {}  # You should store this globally somewhere if persistent
 
-SEEK_STEP = 10
-last_playback = {}
+@vc.on_stream_end()
+async def stream_ended_handler(_, update):
+    chat_id = update.chat_id
+    if chat_id in playing_chat:
+        del playing_chat[chat_id]
 
-def register(clients):
-    bot = clients.bot
-    vc = clients.vc
+@vc.client.on(events.NewMessage(pattern="/seek"))
+async def seek_handler(event):
+    if event.sender_id not in SUDO_USERS and event.sender_id != OWNER_ID:
+        return await event.reply("❌ You're not authorized to use this command.")
+    
+    chat_id = event.chat_id
+    if chat_id not in playing_chat:
+        return await event.reply("❗ Nothing is playing to seek.")
+    
+    try:
+        seconds = int(event.text.split(maxsplit=1)[1])
+    except:
+        return await event.reply("⚠️ Usage: `/seek 30` to seek forward 30 seconds.")
 
-    @bot.on(events.CallbackQuery())
-    async def callback_handler(event):
-        if event.sender_id != OWNER_ID:
-            return await event.answer("🚫 Not allowed", alert=True)
+    current_file = playing_chat[chat_id]
+    
+    await vc.leave_group_call(chat_id)
+    await vc.join_group_call(
+        chat_id,
+        InputAudioStream(
+            current_file,
+            duration_kb=0,
+            initial_seek=seconds * 1000,
+            audio_parameters=HighQualityAudio()
+        )
+    )
 
-        data = event.data.decode("utf-8")
-        chat_id = event.chat_id
-
-        if data in ["pause", "resume", "close"]:
-            if data == "pause":
-                await vc.pause_stream(chat_id)
-                return await event.answer("⏸ Paused", alert=True)
-            if data == "resume":
-                await vc.resume_stream(chat_id)
-                return await event.answer("🔁 Resumed", alert=True)
-            if data == "close":
-                await leave_vc(clients, chat_id)
-                return await event.edit("❌ Playback stopped. VC left.")
-
-        if chat_id not in last_playback:
-            return await event.answer("No active playback", alert=True)
-
-        file_path = last_playback[chat_id]["file"]
-        position = last_playback[chat_id]["seek"]
-
-        if data == "seek":
-            position += SEEK_STEP
-        elif data == "seekback":
-            position = max(0, position - SEEK_STEP)
-
-        await join_and_stream(clients, chat_id, file_path + f"?ss={position}")
-        last_playback[chat_id]["seek"] = position
-        await event.answer(f"⏩ Moved to {position}s", alert=True)
-
-    def save_playback(chat_id, file):
-        last_playback[chat_id] = {
-            "file": file,
-            "seek": 0
-        }
-
-    clients.seek_hook = save_playback
+    await event.reply(f"⏩ Seeked forward {seconds} seconds.")

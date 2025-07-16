@@ -3,7 +3,8 @@
 import asyncio
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
-from pytgcalls import PyTgCalls
+from py_tgcalls import PyTgCalls
+
 from config import API_ID, API_HASH, BOT_TOKEN, SESSION
 from plugins import play, end, seek, start_help
 

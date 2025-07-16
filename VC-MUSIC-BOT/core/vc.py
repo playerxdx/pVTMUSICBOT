@@ -1,13 +1,12 @@
-# core/vc.py
-
-from py_tgcalls.types.input_stream import AudioPiped
-from py_tgcalls.exceptions import GroupCallNotFoundError
+from pytgcalls.types import Update
+from pytgcalls.types.input_stream import InputAudioStream
 from telethon.tl.functions.phone import (
     CreateGroupCallRequest,
     DiscardGroupCallRequest,
     GetGroupCallRequest
 )
 from telethon.tl.types import PeerChat
+from pytgcalls.exceptions import GroupCallNotFoundError
 
 
 async def join_and_stream(clients, chat_id, file_path):
@@ -22,15 +21,4 @@ async def join_and_stream(clients, chat_id, file_path):
             random_id=0
         ))
 
-    await vc.join_group_call(
-        chat_id,
-        AudioPiped(file_path)
-    )
-
-
-async def leave_vc(clients, chat_id):
-    await clients.vc.leave_group_call(chat_id)
-    try:
-        await clients.assistant(DiscardGroupCallRequest(peer=chat_id))
-    except:
-        pass
+    a

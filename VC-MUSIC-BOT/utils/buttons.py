@@ -1,21 +1,17 @@
-# utils/buttons.py
+from telethon.tl.custom.button import Button
 
-from telethon import Button
-
-def get_playback_buttons():
+def get_control_buttons():
     return [
         [
-            Button.inline("⏪ SeekBack", data="seekback"),
-            Button.inline("⏸ Pause", data="pause"),
-            Button.inline("⏩ Seek", data="seek")
+            Button.inline("⏸ Pause", b"pause"),
+            Button.inline("▶️ Resume", b"resume"),
         ],
         [
-            Button.inline("🔁 Resume", data="resume"),
-            Button.inline("❌ Close", data="close")
+            Button.inline("⏭ Seek +10s", b"seek_forward"),
+            Button.inline("⏮ Seek -10s", b"seek_backward"),
+        ],
+        [
+            Button.inline("⏹ Stop", b"end"),
+            Button.inline("❌ Close", b"close"),
         ]
-    ]
-
-def get_start_buttons():
-    return [
-        [Button.inline("📜 Help", data="show_help")]
     ]

@@ -1,6 +1,4 @@
-# core/vc.py
-
-from pytgcalls.types.input_stream.fft import AudioPiped
+from pytgcalls.types.input_stream import AudioPiped
 from pytgcalls.exceptions import GroupCallNotFoundError
 from telethon.tl.functions.phone import (
     CreateGroupCallRequest,

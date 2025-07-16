@@ -1,36 +1,90 @@
-from telethon import events
-from config import SUDO_USERS, OWNER_ID
+# plugins/play.py
+
+from pyrogram.types import Message
+from telethon.tl.functions.phone import CreateGroupCallRequest
+from telethon.tl.functions.phone import DiscardGroupCallRequest
+from telethon.tl.types import InputGroupCall
+from telethon.tl.functions.phone import GetGroupCallRequest
+from telethon.errors import UserAlreadyParticipantError
+
 from utils.clients import user, bot, vc
-from core.vc import join_and_stream
-from pytgcalls.types.input_stream import InputAudioStream
-from utils.buttons import get_control_buttons
+from config import OWNER_ID
+from pyrogram import filters
+from pyrogram.enums import ChatAction
+from pyrogram.handlers import MessageHandler
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+from pytgcalls.types.input_stream import AudioPiped
+from pytgcalls.types.input_stream.input_audio_stream import InputAudioStream
+
 import os
+import asyncio
+import aiofiles
 
-@bot.on(events.NewMessage(pattern="/vplay"))
-async def play_handler(event):
-    if event.sender_id not in SUDO_USERS and event.sender_id != OWNER_ID:
-        return await event.reply("You're not authorized to use this command.")
+active_chats = {}
 
-    if not event.is_reply:
-        return await event.reply("Reply to an audio or video file to play it in VC.")
+BUTTONS = InlineKeyboardMarkup([
+    [
+        InlineKeyboardButton("⏸ Pause", callback_data="pause"),
+        InlineKeyboardButton("▶️ Resume", callback_data="resume")
+    ],
+    [
+        InlineKeyboardButton("⏩ Seek", callback_data="seek"),
+        InlineKeyboardButton("⏪ Back", callback_data="seekback")
+    ],
+    [
+        InlineKeyboardButton("⏹ Stop", callback_data="end")
+    ]
+])
 
-    reply = await event.get_reply_message()
-    if not reply.file:
-        return await event.reply("This message doesn't contain a media file.")
+@bot.on_message(filters.command("vplay") & filters.user(OWNER_ID))
+async def vplay(_, message: Message):
+    if message.reply_to_message and message.reply_to_message.audio or message.reply_to_message.video:
+        media = message.reply_to_message
+    else:
+        await message.reply("Reply to a supported audio/video file.")
+        return
 
-    media = await reply.download_media(file="downloads/")
-    if not os.path.exists(media):
-        return await event.reply("Failed to download media.")
+    file_path = await media.download()
+    await user.send_chat_action(message.chat.id, ChatAction.RECORD_AUDIO)
 
-    chat_id = event.chat_id
-
-    await join_and_stream(
-        clients=vc,
-        chat_id=chat_id,
-        file_path=media
+    await vc.join_group_call(
+        message.chat.id,
+        AudioPiped(file_path)
     )
 
-    await event.reply(
-        f"▶️ **Started Streaming!**\n\n**Requested by:** [{event.sender.first_name}](tg://user?id={event.sender_id})",
-        buttons=get_control_buttons()
+    active_chats[message.chat.id] = file_path
+
+    await message.reply(
+        f"🎧 Playing **{media.audio.title if media.audio else 'file'}** in VC",
+        reply_markup=BUTTONS
     )
+
+@bot.on_callback_query()
+async def callbacks(_, callback_query):
+    data = callback_query.data
+    chat_id = callback_query.message.chat.id
+
+    if data == "pause":
+        await vc.pause_stream(chat_id)
+        await callback_query.answer("Paused ⏸")
+
+    elif data == "resume":
+        await vc.resume_stream(chat_id)
+        await callback_query.answer("Resumed ▶️")
+
+    elif data == "seek":
+        await callback_query.answer("Seek not implemented")  # Implement later
+
+    elif data == "seekback":
+        await callback_query.answer("Seekback not implemented")  # Implement later
+
+    elif data == "end":
+        await vc.leave_group_call(chat_id)
+        if chat_id in active_chats:
+            try:
+                os.remove(active_chats[chat_id])
+            except Exception:
+                pass
+            del active_chats[chat_id]
+        await callback_query.answer("Stopped ⏹")

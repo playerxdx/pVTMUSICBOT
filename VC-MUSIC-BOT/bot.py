@@ -4,10 +4,10 @@ import asyncio
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 from pytgcalls import PyTgCalls  # Not py_tgcalls
-from config import API_ID, API_HASH, BOT_TOKEN, STRING_SESSION
+from config import API_ID, API_HASH, BOT_TOKEN, SESSION
 from plugins import play, end, seek, start_help
 
-assistant = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
+assistant = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
 # Bot account (used for handling bot commands)
 bot = TelegramClient(StringSession(SESSION), API_ID, API_HASH).start()
 

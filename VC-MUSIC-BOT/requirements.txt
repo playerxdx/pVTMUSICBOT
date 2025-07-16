@@ -1,3 +1,3 @@
 telethon==1.33.1
-pytgcalls==5.0.0b2
+py-tgcalls==0.9.7
 ffmpeg-python==0.2.0

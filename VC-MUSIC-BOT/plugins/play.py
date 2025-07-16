@@ -5,6 +5,8 @@ from telethon import events
 from config import OWNER_ID
 from core.vc import join_and_stream
 from utils.buttons import get_control_buttons
+from py_tgcalls.types.input_stream import AudioPiped
+
 
 
 def register(clients):

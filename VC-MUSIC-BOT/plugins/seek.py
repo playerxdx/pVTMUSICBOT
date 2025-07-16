@@ -1,9 +1,11 @@
 # plugins/seek.py
+# plugins/seek.py
 
-import os
 from telethon import events
-from config import OWNER_ID
-from core.vc import join_and_stream, leave_vc
+from config import SUDO_USERS, OWNER_ID
+from utils.clients import vc
+from utils.stream_helpers import restart_stream_from_position  # if you have this helper
+
 
 SEEK_STEP = 10
 last_playback = {}

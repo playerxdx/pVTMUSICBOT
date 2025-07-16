@@ -1,10 +1,13 @@
 # core/vc.py
 
-import os
-from pytgcalls.types.input_stream import AudioPiped
+from pytgcalls.types.input_stream.fft import AudioPiped
 from pytgcalls.exceptions import GroupCallNotFoundError
-from telethon.tl.functions.phone import CreateGroupCallRequest, DiscardGroupCallRequest, GetGroupCallRequest
-from telethon.tl.types import InputGroupCall, PeerChat
+from telethon.tl.functions.phone import (
+    CreateGroupCallRequest,
+    DiscardGroupCallRequest,
+    GetGroupCallRequest
+)
+from telethon.tl.types import PeerChat
 
 async def join_and_stream(clients, chat_id, file_path):
     assistant = clients.assistant

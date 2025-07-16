@@ -5,7 +5,8 @@ from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 from pytgcalls import PyTgCalls  # Not py_tgcalls
 
-from config import API_ID, API_HASH, BOT_TOKEN, SESSION
+from config import API_ID, API_HASH, BOT_TOKEN, STRING_SESSION
+
 from plugins import play, end, seek, start_help
 
 # Assistant account (used to stream in VC)

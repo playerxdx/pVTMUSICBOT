@@ -6,7 +6,6 @@ from config import OWNER_ID
 def register(clients):
     bot = clients.bot
 
-    @bot.on(events.NewMessage(pattern="/start"))
     async def start_handler(event):
         if event.sender_id != OWNER_ID:
             return await event.reply("👋 Hello! This is a private VC music bot.")
@@ -18,6 +17,10 @@ def register(clients):
             "💡 Click the Help button below for more info.",
             buttons=[[Button.inline("📜 Help", data="show_help")]]
         )
+
+    @bot.on(events.NewMessage(pattern="/start"))
+    async def start_command(event):
+        await start_handler(event)
 
     @bot.on(events.CallbackQuery(data=b"show_help"))
     async def show_help(event):

@@ -1,8 +1,7 @@
 # config.py
 
-API_ID = 12345678  # Replace with your own
-API_HASH = "abc123yourapihashhere"  # Replace with your own
-BOT_TOKEN = "your:bot_token_here"  # Replace with your own
-SESSION = "your_session_string_here"  # Replace with your own
-
-OWNER_ID = 123456789  # Your numeric Telegram ID
+API_ID = 29300946
+API_HASH = "3f3e3b37b89140fa8ddccdd0e682f2ff"
+BOT_TOKEN = "7890280889:AAFtqbdeE66p54Ws241wdmus6Sjh2smrFLg"
+SESSION = "1BVtsOKEBuxJ4Otv7733mlLx2qqcooODViFNK1gp-8J11Ao4HHW6ENwzLeUEshhpRdxE3A5XUDt-osGfQJhvXN3gqDSux2HNBjSarYy1nmX-OvctYQVw5hZ6UM9CSUdFXx2NXhe-WordP-6L5owdsAjPgT7KKzh4POU-yYOKnY_rYdC5xMFGMODxp6EHTSIUUM4KsmHhN18B6Jhlv_llzUOHA1dmrrjcdAmhlwV20V5Razodrwohqaa748inFnnHZWc7Gncm1BqtxQutzt_fW_IZe_R_GiY5XEceqtdzocLGZP975GiH7IMkFp-lD-IK-yhdPTGYI3TDN9N80E7biDXUPewDgAAE="
+OWNER_ID = 7158935023

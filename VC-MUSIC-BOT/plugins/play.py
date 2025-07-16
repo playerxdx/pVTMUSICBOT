@@ -1,40 +1,36 @@
-# plugins/play.py
-
-import os
 from telethon import events
-from config import OWNER_ID
+from config import SUDO_USERS, OWNER_ID
+from utils.clients import user, bot, vc
 from core.vc import join_and_stream
+from pytgcalls.types.input_stream import InputAudioStream
 from utils.buttons import get_control_buttons
-from py_tgcalls.types.input_stream import AudioPiped
+import os
 
+@bot.on(events.NewMessage(pattern="/vplay"))
+async def play_handler(event):
+    if event.sender_id not in SUDO_USERS and event.sender_id != OWNER_ID:
+        return await event.reply("You're not authorized to use this command.")
 
+    if not event.is_reply:
+        return await event.reply("Reply to an audio or video file to play it in VC.")
 
-def register(clients):
-    bot = clients.bot
-    seek_hook = getattr(clients, "seek_hook", None)
+    reply = await event.get_reply_message()
+    if not reply.file:
+        return await event.reply("This message doesn't contain a media file.")
 
-    @bot.on(events.NewMessage(pattern="/(vplay|splay)"))
-    async def _(event):
-        if event.sender_id != OWNER_ID:
-            return await event.reply("🚫 You're not allowed to use this bot.")
+    media = await reply.download_media(file="downloads/")
+    if not os.path.exists(media):
+        return await event.reply("Failed to download media.")
 
-        if not event.is_reply:
-            return await event.reply("⚠️ Reply to an audio or video file to play it in voice chat.")
+    chat_id = event.chat_id
 
-        reply = await event.get_reply_message()
-        if not reply.file or not reply.media:
-            return await event.reply("❌ That’s not a valid audio/video file.")
+    await join_and_stream(
+        clients=vc,
+        chat_id=chat_id,
+        file_path=media
+    )
 
-        media = await reply.download_media(file="downloads/")
-        chat_id = event.chat_id
-
-        # Store current playback for seek handling
-        if seek_hook:
-            seek_hook(chat_id, media)
-
-        await join_and_stream(clients, chat_id, media)
-
-        await event.reply(
-            f"▶️ Playing: `{os.path.basename(media)}`",
-            buttons=get_control_buttons()
-        )
+    await event.reply(
+        f"▶️ **Started Streaming!**\n\n**Requested by:** [{event.sender.first_name}](tg://user?id={event.sender_id})",
+        buttons=get_control_buttons()
+    )

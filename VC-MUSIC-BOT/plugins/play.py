@@ -35,3 +35,6 @@ async def play_handler(event):
         "▶️ **Started Streaming!**",
         buttons=get_control_buttons()
     )
+def register(clients):
+    # nothing to register, the event handlers are auto-registered
+    pass

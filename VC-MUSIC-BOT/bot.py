@@ -9,7 +9,7 @@ from plugins import play, end, seek, start_help
 
 assistant = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
 # Bot account (used for handling bot commands)
-bot = TelegramClient("bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
+bot = TelegramClient(StringSession(SESSION), API_ID, API_HASH).start()
 
 # VC streaming client
 vc_client = PyTgCalls(assistant)

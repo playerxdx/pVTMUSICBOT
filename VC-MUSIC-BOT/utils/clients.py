@@ -5,7 +5,7 @@ from pytgcalls import PyTgCalls
 from config import API_ID, API_HASH, STRING_SESSION
 
 bot = TelegramClient("bot", API_ID, API_HASH).start(bot_token=os.environ.get("BOT_TOKEN"))
-user = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
+user = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH).start()
 vc = PyTgCalls(user)
 
 class Clients:
